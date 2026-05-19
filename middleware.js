@@ -1,25 +1,23 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 import { NextResponse } from 'next/server'
 
 export async function middleware(req) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
-
-  const { data: { session } } = await supabase.auth.getSession()
-
   const { pathname } = req.nextUrl
 
+  // Récupérer le cookie de session Supabase
+  const token = req.cookies.get('sb-access-token') ||
+                req.cookies.getAll().find(c => c.name.includes('auth-token'))
+
   // Si non connecté et tente d'accéder à une page protégée
-  if (!session && pathname !== '/login') {
+  if (!token && pathname !== '/login') {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
   // Si déjà connecté et tente d'accéder au login
-  if (session && pathname === '/login') {
+  if (token && pathname === '/login') {
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
-  return res
+  return NextResponse.next()
 }
 
 export const config = {
