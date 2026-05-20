@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { Menu, X, LogOut, Bell } from 'lucide-react'
+import { Menu, X, LogOut } from 'lucide-react'
 
 export default function Navbar() {
   const router = useRouter()
@@ -56,88 +56,89 @@ export default function Navbar() {
   const currentLinks = links[role] || []
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-
-          {/* Logo + Titre */}
-          <div className="flex items-center gap-3">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
+          <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
             <Image
               src="/images/logo.png"
               alt="Logo"
               width={40}
               height={40}
+              className="object-contain"
             />
-            <span className="font-bold text-gray-800 text-sm leading-tight">
-              Archivage des Notes<br />
-              <span className="text-xs font-normal text-gray-500">
-                Faculté des Sciences
-              </span>
-            </span>
           </div>
-
-          {/* Liens desktop */}
-          <div className="hidden md:flex items-center gap-1">
-            {currentLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                  pathname === href
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
+          <div>
+            <p className="text-base font-semibold text-slate-900">Archivage des Notes</p>
+            <p className="text-sm text-slate-500">Faculté des Sciences</p>
           </div>
-
-          {/* Bouton déconnexion desktop */}
-          <div className="hidden md:flex items-center gap-2">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition"
-            >
-              <LogOut size={16} />
-              Déconnexion
-            </button>
-          </div>
-
-          {/* Menu burger mobile */}
-          <button
-            className="md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
-      </div>
 
-      {/* Menu mobile */}
-      {menuOpen && (
-        <div className="md:hidden border-t border-gray-100 px-4 py-3 flex flex-col gap-2">
+        <div className="hidden md:flex items-center gap-2">
           {currentLinks.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              onClick={() => setMenuOpen(false)}
-              className={`px-4 py-2 rounded-md text-sm ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                 pathname === href
-                  ? 'bg-blue-50 text-blue-700 font-medium'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-sky-100 text-sky-800 shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               {label}
             </Link>
           ))}
+        </div>
+
+        <div className="hidden md:flex items-center gap-3">
+          {role && (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
+              {role}
+            </span>
+          )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
+            className="inline-flex items-center gap-2 rounded-full bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
           >
             <LogOut size={16} />
             Déconnexion
           </button>
+        </div>
+
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 md:hidden"
+        >
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div className="md:hidden border-t border-slate-200/80 bg-white/95 px-4 pb-4 pt-3 shadow-sm backdrop-blur-xl">
+          <div className="flex flex-col gap-2">
+            {currentLinks.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setMenuOpen(false)}
+                className={`rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                  pathname === href
+                    ? 'bg-sky-100 text-sky-800'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 transition hover:bg-red-100"
+            >
+              <LogOut size={16} />
+              Déconnexion
+            </button>
+          </div>
         </div>
       )}
     </nav>
