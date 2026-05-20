@@ -1,5 +1,5 @@
 'use client'
-
+import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -42,12 +42,21 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-          Archivage des Notes
-        </h1>
-        <p className="text-center text-gray-500 mb-6 text-sm">
-          Faculté des Sciences — Université de Ngaoundéré
-        </p>
+        <div className="flex flex-col items-center mb-6">
+  <Image
+    src="/images/logo.png"    
+    alt="Logo Université de Ngaoundéré"              
+    width={80}
+    height={80}
+    className="mb-3"
+  />
+  <h1 className="text-2xl font-bold text-center text-gray-800">
+    Archivage des Relevés de Notes
+  </h1>
+  <p className="text-center text-gray-500 text-sm">
+    Faculté des Sciences — Université de Ngaoundéré
+  </p>
+</div>
 
         {error && (
           <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">
