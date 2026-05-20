@@ -83,7 +83,7 @@ export default function Navbar() {
                 Archivage des Notes
               </p>
               <p className="text-[#D4AF37] text-xs font-medium">
-                Faculté des Sciences — UNgaoundéré
+                Faculté des Sciences, Univ - Ndéré
               </p>
             </div>
           </div>

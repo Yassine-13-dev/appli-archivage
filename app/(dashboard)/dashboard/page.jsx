@@ -81,7 +81,7 @@ export default function Dashboard() {
       {/* En-tête */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-800">
-          Bonjour, {prenom} 👋
+          Bonjour, {prenom} vous êtes connecté en tant qu'administrateur dans la plateforme d'archivage des relevés de notes de la Faculté des Sciences de l'Université de Ngaoundéré.
         </h1>
         <p className="text-gray-500 text-sm mt-1">
           Voici un résumé de l'activité de la plateforme.
