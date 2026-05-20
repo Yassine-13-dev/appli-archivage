@@ -1,132 +1,143 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useState } from 'react'
+import Image from 'next/image'
+import { useRouter, usePathname } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { Menu, X, LogOut, Bell } from 'lucide-react'
 
-// Liens par rôle
-const NAV_LINKS = {
-  admin: [
-    { href: '/dashboard',       label: 'Tableau de bord' },
-    { href: '/releves',         label: 'Relevés' },
-    { href: '/saisie-notes',    label: 'Saisie notes' },
-    { href: '/sessions',        label: 'Sessions' },
-    { href: '/utilisateurs',    label: 'Utilisateurs' },
-    { href: '/recherche',       label: 'Recherche' },
-    { href: '/notifications',   label: 'Notifications' },
-  ],
-  professeur: [
-    { href: '/dashboard',       label: 'Tableau de bord' },
-    { href: '/saisie-notes',    label: 'Saisie notes' },
-    { href: '/releves',         label: 'Relevés' },
-    { href: '/notifications',   label: 'Notifications' },
-  ],
-  etudiant: [
-    { href: '/dashboard',       label: 'Tableau de bord' },
-    { href: '/releves',         label: 'Mes relevés' },
-    { href: '/recherche',       label: 'Recherche' },
-    { href: '/notifications',   label: 'Notifications' },
-  ],
-}
-
-export default function Navbar({ user, role }) {
-  const pathname = usePathname()
+export default function Navbar() {
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [role, setRole] = useState(null)
 
-  const links = NAV_LINKS[role] ?? []
+  useEffect(() => {
+    const getRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
 
-  async function handleLogout() {
-    setLoading(true)
+      const { data: profile } = await supabase
+        .from('utilisateurs')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      setRole(profile?.role)
+    }
+    getRole()
+  }, [])
+
+  const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
-    router.refresh()
   }
 
+  // Liens selon le rôle
+  const links = {
+    admin: [
+      { href: '/dashboard', label: 'Tableau de bord' },
+      { href: '/sessions', label: 'Sessions' },
+      { href: '/utilisateurs', label: 'Utilisateurs' },
+      { href: '/recherche', label: 'Recherche' },
+    ],
+    enseignant: [
+      { href: '/saisie-notes', label: 'Saisie des notes' },
+      { href: '/recherche', label: 'Recherche' },
+    ],
+    etudiant: [
+      { href: '/releves', label: 'Mes relevés' },
+      { href: '/notifications', label: 'Notifications' },
+      { href: '/recherche', label: 'Recherche' },
+    ],
+  }
+
+  const currentLinks = links[role] || []
+
   return (
-    <nav className="w-full bg-white border-b border-gray-200 px-4 md:px-8">
-      <div className="flex items-center justify-between h-16 max-w-7xl mx-auto">
+    <nav className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
 
-        {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-gray-900 text-lg">
-          <span className="bg-blue-600 text-white rounded-md px-2 py-0.5 text-sm font-bold tracking-wide">AN</span>
-          <span className="hidden sm:inline">ArchiveNotes</span>
-        </Link>
+          {/* Logo + Titre */}
+          <div className="flex items-center gap-3">
+            <Image
+              src="/images/logo.png"
+              alt="Logo"
+              width={40}
+              height={40}
+            />
+            <span className="font-bold text-gray-800 text-sm leading-tight">
+              Archivage des Notes<br />
+              <span className="text-xs font-normal text-gray-500">
+                Faculté des Sciences
+              </span>
+            </span>
+          </div>
 
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
-          {links.map(({ href, label }) => {
-            const active = pathname === href || pathname.startsWith(href + '/')
-            return (
+          {/* Liens desktop */}
+          <div className="hidden md:flex items-center gap-1">
+            {currentLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                  active
-                    ? 'bg-blue-50 text-blue-700 font-medium'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                  pathname === href
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 {label}
               </Link>
-            )
-          })}
-        </div>
-
-        {/* Right side: user info + logout */}
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex flex-col items-end">
-            <span className="text-sm font-medium text-gray-900 leading-none">
-              {user?.email ?? '—'}
-            </span>
-            <span className="text-xs text-gray-400 capitalize mt-0.5">{role}</span>
+            ))}
           </div>
 
-          <button
-            onClick={handleLogout}
-            disabled={loading}
-            className="text-sm text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 rounded-md px-3 py-1.5 transition-colors disabled:opacity-50"
-          >
-            {loading ? 'Déconnexion…' : 'Déconnexion'}
-          </button>
+          {/* Bouton déconnexion desktop */}
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition"
+            >
+              <LogOut size={16} />
+              Déconnexion
+            </button>
+          </div>
 
-          {/* Mobile hamburger */}
+          {/* Menu burger mobile */}
           <button
-            className="md:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100"
-            onClick={() => setMenuOpen(o => !o)}
-            aria-label="Menu"
+            className="md:hidden"
+            onClick={() => setMenuOpen(!menuOpen)}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {menuOpen
-                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              }
-            </svg>
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Menu mobile */}
       {menuOpen && (
-        <div className="md:hidden pb-3 pt-1 flex flex-col gap-1 border-t border-gray-100">
-          {links.map(({ href, label }) => {
-            const active = pathname === href
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMenuOpen(false)}
-                className={`px-4 py-2 rounded-md text-sm ${
-                  active ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                {label}
-              </Link>
-            )
-          })}
+        <div className="md:hidden border-t border-gray-100 px-4 py-3 flex flex-col gap-2">
+          {currentLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              className={`px-4 py-2 rounded-md text-sm ${
+                pathname === href
+                  ? 'bg-blue-50 text-blue-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
+          >
+            <LogOut size={16} />
+            Déconnexion
+          </button>
         </div>
       )}
     </nav>
