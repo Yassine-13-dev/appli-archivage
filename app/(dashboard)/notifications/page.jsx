@@ -1,8 +1,9 @@
-
-export default function Notifications() {
+export default function NotificationsPage() {
   return (
-    <div>
-      <h1>Page Notifications</h1>
-    </div>
+    <main>
+      <h1>Notifications</h1>
+      <p>Liste des notifications récentes.</p>
+    </main>
   )
 }
+ 
