@@ -15,9 +15,13 @@ export default function Releves() {
       const { data, error } = await supabase
         .from("notes")
         .select(`
+          id,
           valeur,
-          matieres ( nom, credits, semestre ),
-          sessions_examens ( nom )
+          date_saisie,
+          matiere_id,
+          session_id,
+          matieres!notes_matiere_id_fkey ( intitule, credits, coefficient, semestre ),
+          sessions_examens!notes_session_id_fkey ( libelle, annee_academique )
         `)
         .eq("etudiant_id", user.id);
 
