@@ -11,7 +11,8 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault()
     setLoading(true)
     setError('')
 
@@ -41,22 +42,25 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-8 rounded-xl shadow-md w-full max-w-md"
+      >
         <div className="flex flex-col items-center mb-6">
-  <Image
-    src="/images/logo.png"    
-    alt="Logo Université de Ngaoundéré"              
-    width={80}
-    height={80}
-    className="mb-3"
-  />
-  <h1 className="text-2xl font-bold text-center text-gray-800">
-    Archivage des Relevés de Notes
-  </h1>
-  <p className="text-center text-gray-500 text-sm">
-    Faculté des Sciences — Université de Ngaoundéré
-  </p>
-</div>
+          <Image
+            src="/images/logo.png"
+            alt="Logo Université de Ngaoundéré"
+            width={80}
+            height={80}
+            className="mb-3"
+          />
+          <h1 className="text-2xl font-bold text-center text-gray-800">
+            Archivage des Relevés de Notes
+          </h1>
+          <p className="text-center text-gray-500 text-sm">
+            Faculté des Sciences — Université de Ngaoundéré
+          </p>
+        </div>
 
         {error && (
           <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">
@@ -91,13 +95,13 @@ export default function LoginPage() {
         </div>
 
         <button
-          onClick={handleLogin}
+          type="submit"
           disabled={loading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition disabled:opacity-50"
         >
           {loading ? 'Connexion...' : 'Se connecter'}
         </button>
-      </div>
+      </form>
     </div>
   )
 }
